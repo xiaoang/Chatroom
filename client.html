@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>本地聊天系统</title>
+<body>
+    <div id="notice" style="width:600px;height:20px;margin:30px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">欢迎登陆本聊天室，本聊天室server端采用nodejs原生ws协议实现，实现简单的多用户在线聊天,对客户端的下线还未做处理</div>
+<div id="wrap" style="width:600px;height:300px;border:1px solid #ccc">
+<div id="voicearea" style="height:300px;vertical-align:bottom;overflow-y:auto"></div>
+<textarea id="word" style="width:594px;height:100px;border:2px solid #ccc" name="word" tabindex="1">请输入。。。</textarea>
+<br/>
+<input id="sub" type="submit" tabindex="2" value="发送" style="float:right;margin:20px;"/>
+</div>
+<script>
+var ws = new WebSocket("ws://your service address/");
+document.getElementById("word").onfocus=function(){
+   this.value = "" // reset the value empty when the cursor focus in input box
+}
+document.onkeydown = function(event){
+    if(event.keyCode == 13){
+        doaction(); //submit form data when knock the key "enter"
+    }
+}
+document.getElementById("sub").onclick=doaction;
+
+function doaction(){
+    var sayword = document.getElementById("word");
+    var sayval = sayword.value;
+    var html = document.getElementById("voicearea").innerHTML;
+    document.getElementById("voicearea").innerHTML = html +'<br/><strong style="color:red">我</strong>：'+ sayval;
+    ws.send(sayval);
+    sayword.value="";
+}
+ws.onmessage = function (evt) {
+    var html = document.getElementById("voicearea").innerHTML;
+    document.getElementById("voicearea").innerHTML = html +'<br/>他们说：'+ evt.data;
+};
+
+ws.onclose = function () {
+    document.write("the service is Closed");
+};
+
+ws.onerror = function (err) {
+    document.write("Error: " + err);
+};
+</script>
+</body>
+</html>
